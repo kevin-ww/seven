@@ -28,7 +28,6 @@ func Marshal(v interface{}) []byte {
 	return bytes
 }
 
-
 func EncodeResponse(data interface{}, err error) peer.Response {
 	if err != nil {
 		return shim.Error(err.Error())

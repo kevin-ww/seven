@@ -26,8 +26,7 @@ func TestGet(t *testing.T) {
 
 }
 
-
-func TestCreate(t *testing.T){
+func TestCreate(t *testing.T) {
 	tknCCStub := testcc.NewMockStub(`token`, NewCC())
 	token := &Token{
 		Payload: Payload{
@@ -43,10 +42,10 @@ func TestCreate(t *testing.T){
 	mockStrPayload := string(Marshal(*token))
 	//res := tknCCStub.Invoke(`get`, mockStrPayload)
 	res := tknCCStub.Invoke(`create`, mockStrPayload)
-	fmt.Printf("%v %v %v\n", res.Status,res.Message,string(res.Payload))
+	fmt.Printf("%v %v %v\n", res.Status, res.Message, string(res.Payload))
 }
 
-func TestCreateThenGet(t *testing.T){
+func TestCreateThenGet(t *testing.T) {
 
 	tknCCStub := testcc.NewMockStub(`token`, NewCC())
 	token := &Token{
@@ -63,18 +62,18 @@ func TestCreateThenGet(t *testing.T){
 	mockStrPayload := string(Marshal(*token))
 	//res := tknCCStub.Invoke(`get`, mockStrPayload)
 	res := tknCCStub.Invoke(`create`, mockStrPayload)
-	fmt.Printf("%v %v %v\n", res.Status,res.Message,string(res.Payload))
+	fmt.Printf("%v %v %v\n", res.Status, res.Message, string(res.Payload))
 
 	q := &Token{
 		Symbol: "kvntoken",
 	}
 	get := string(Marshal(*q))
 	res = tknCCStub.Invoke(`get`, get)
-	fmt.Printf("%v %v\n", res ,string(res.Payload))
+	fmt.Printf("%v %v\n", res, string(res.Payload))
 
 }
 
-func TestEncodingResponse(t *testing.T){
+func TestEncodingResponse(t *testing.T) {
 
 }
 

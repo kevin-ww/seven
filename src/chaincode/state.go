@@ -7,29 +7,33 @@ import (
 	"strings"
 )
 
-type ledger interface {
-	put(k string, v interface{}) error
-	get(k string, target interface{}) (interface{}, error)
-	has(k string) (bool, error)
-}
+//type ledger interface {
+//	put(k string, v interface{}) error
+//	get(k string, target interface{}) (interface{}, error)
+//	exists(k string) (bool, error)
+//	ledgerKey(k string) string
+//}
 
-type ledgerDB struct {
+type ledgerStub struct {
 	admin  string
 	bucket string
 	stub   shim.ChaincodeStubInterface
-	//stub *shim.MockStub
 }
 
-func (l *ledgerDB) ledgerKey(k string) string {
+type ledgerState interface {
+	New(s *ledgerStub) interface{}
+}
+
+func (l *ledgerStub) ledgerKey(k string) string {
 	return strings.Join([]string{k, l.bucket, l.admin}, "|")
 }
 
-func (l *ledgerDB) put(k string, v interface{}) error {
+func (l *ledgerStub) put(k string, v interface{}) error {
 	bytes, _ := json.Marshal(v)
 	return l.stub.PutState(l.ledgerKey(k), bytes)
 }
 
-func (l *ledgerDB) get(k string, target interface{}) (interface{}, error) {
+func (l *ledgerStub) get(k string, target interface{}) (interface{}, error) {
 	bytes, e := l.stub.GetState(l.ledgerKey(k))
 	if e != nil {
 		return nil, e
@@ -41,7 +45,7 @@ func (l *ledgerDB) get(k string, target interface{}) (interface{}, error) {
 	return target, e
 }
 
-func (l *ledgerDB) exists(k string) (bool, error) {
+func (l *ledgerStub) exists(k string) (bool, error) {
 	bytes, e := l.stub.GetState(l.ledgerKey(k))
 	if e != nil || bytes == nil {
 		return false, e

@@ -33,31 +33,31 @@ func process(stub shim.ChaincodeStubInterface) peer.Response {
 	fmt.Printf("invoking %v with args: %v \n", funcName, args[0])
 
 	//var token *Token
-	t, e := UnMarshal([]byte(args[0]), &Token{})
+	//t, e := UnMarshal([]byte(args[0]), &Token{})
 
-	token := t.(*Token)
+	//token := t.(*Token)
 
-	if e != nil {
-		EncodeResponse(nil, e)
-	}
+	//if e != nil {
+	//	EncodeResponse(nil, e)
+	//}
 
-	tokenState := &TokenImpl{
-		ledgerDB: ledgerDB{
-			admin:  "",
-			bucket: "",
-			stub:   stub,
-		},
-	}
+	//tokenState := &TokenImpl{
+	//	ledgerDB: ledgerDB{
+	//		admin:  "",
+	//		bucket: "",
+	//		stub:   stub,
+	//	},
+	//}
 
-	if funcName == `get` {
-		return EncodeResponse(tokenState.get(token))
-	} else if funcName == `create` {
-		return EncodeResponse(tokenState.create(token))
-	} else if funcName == `has` {
-		return EncodeResponse(tokenState.has(token))
-	} else if funcName == `update` {
-		return EncodeResponse(tokenState.update(token))
-	}
+	//if funcName == `get` {
+	//	return EncodeResponse(tokenState.get(token))
+	//} else if funcName == `create` {
+	//	return EncodeResponse(tokenState.create(token))
+	//} else if funcName == `has` {
+	//	return EncodeResponse(tokenState.has(token))
+	//} else if funcName == `update` {
+	//	return EncodeResponse(tokenState.update(token))
+	//}
 
 	return EncodeResponse(nil, errors.New(funcName+` not provided in `+CCName))
 }
@@ -75,5 +75,3 @@ func main() {
 		fmt.Printf("Error starting %s: %s", CCName, err)
 	}
 }
-
-

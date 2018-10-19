@@ -1,92 +1,43 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"github.com/gpmgo/gopm/modules/log"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/protos/peer"
+	"reflect"
 )
 
-func test(stub shim.ChaincodeStubInterface, target interface{} , impl interface{}) peer.Response{
+func test(stub shim.ChaincodeStubInterface, ccName string, target interface{}, impl interface{}) peer.Response {
 
-	funcName, _ := stub.GetFunctionAndParameters()
-	//
-	//if args == nil || len(args) == 0 {
-	//	fmt.Printf("require at least one arg as chaincode function payload \n")
-	//}
-	//
-	//fmt.Printf("invoking %v with args: %v \n", funcName, args[0])
-	//
-	////var token *Token
-	//t, e := UnMarshal([]byte(args[0]), target)
-	//
-	////token := t.(Token)
-	//
-	//if e != nil {
-	//	EncodeResponse(nil, e)
-	//}
-	//
-	//
-	////impl
-	//
-	//tokenLedger := &TokenImpl{
-	//	ledgerDB: ledgerDB{
-	//		admin:  "admin",
-	//		bucket: "token-bucket",
-	//		stub:   stub,
-	//	},
-	//}
-	//
-	//if funcName == `get` {
-	//	return EncodeResponse(tokenLedger.get(&token))
-	//} else if funcName == `create` {
-	//	return EncodeResponse(tokenLedger.create(&token))
-	//} else if funcName == `has` {
-	//	return EncodeResponse(tokenLedger.has(&token))
-	//} else if funcName == `update` {
-	//	return EncodeResponse(tokenLedger.update(&token))
-	//}
-
-	return EncodeResponse(nil, errors.New(funcName+` not provided in `+CCName))
-}
-
-
-func core(stub shim.ChaincodeStubInterface) peer.Response {
+	ledgerImpl := impl.(ledgerState).New(&ledgerStub{
+		admin:  "admin",
+		bucket: ccName,
+		stub:   stub,
+	})
 
 	funcName, args := stub.GetFunctionAndParameters()
 
-	if args == nil || len(args) == 0 {
-		fmt.Printf("require at least one arg as chaincode function payload \n")
+	//ref
+	val, e := UnMarshal([]byte(args[0]), target)
+
+	if e != nil{
+		fmt.Printf("%v\n",e)
 	}
 
-	fmt.Printf("invoking %v with args: %v \n", funcName, args[0])
+	m := reflect.ValueOf(ledgerImpl).MethodByName(funcName)
 
-	//var token *Token
-	t, e := UnMarshal([]byte(args[0]), &Token{})
-
-	token := t.(Token)
-
-	if e != nil {
-		EncodeResponse(nil, e)
+	if m.Type() == nil{
+		log.Fatal(`no such method :`+funcName)
 	}
 
-	tokenLedger := &TokenImpl{
-		ledgerDB: ledgerDB{
-			admin:  "admin",
-			bucket: "token-bucket",
-			stub:   stub,
-		},
-	}
 
-	if funcName == `get` {
-		return EncodeResponse(tokenLedger.get(&token))
-	} else if funcName == `create` {
-		return EncodeResponse(tokenLedger.create(&token))
-	} else if funcName == `has` {
-		return EncodeResponse(tokenLedger.has(&token))
-	} else if funcName == `update` {
-		return EncodeResponse(tokenLedger.update(&token))
-	}
+	//
 
-	return EncodeResponse(nil, errors.New(funcName+` not provided in `+CCName))
+	inputs := make([]reflect.Value, 1)
+	inputs[0] = reflect.ValueOf(val)
+
+	response := m.Call(inputs)
+
+	return shim.Error(``)
 }

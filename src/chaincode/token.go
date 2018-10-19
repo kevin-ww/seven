@@ -12,32 +12,43 @@ func keyGen(t *Token) string {
 	return t.Symbol
 }
 
-type TokenImpl struct {
-	ledgerDB
+type TokenLedgerImpl struct {
+	*ledgerStub
 }
 
-func NewImpl(l ledgerDB) *TokenImpl{
-	return &TokenImpl{
-		l,
-	}
+func (impl *TokenLedgerImpl) New(s *ledgerStub) interface{}{
+	impl.ledgerStub=s
+	return impl
 }
 
-func (tI *TokenImpl) create(t *Token) (*Token, error) {
-	return t, tI.ledgerDB.put(keyGen(t), t)
+//type nop int
+//
+//func (n *nop) New(s *ledgerStub) interface{} {
+//	return &TokenLedgerImpl{
+//		s,
+//	}
+//}
+
+//type ledgerState interface {
+//	New(s *ledgerStub) interface{}
+//}
+
+func (impl *TokenLedgerImpl) create(token *Token) (*Token, error) {
+	return token, impl.ledgerStub.put(keyGen(token), token)
 }
 
-func (tI *TokenImpl) has(t *Token) (bool, error) {
-	return tI.ledgerDB.exists(keyGen(t))
+func (impl *TokenLedgerImpl) has(token *Token) (bool, error) {
+	return impl.ledgerStub.exists(keyGen(token))
 }
 
-func (tI *TokenImpl) update(t *Token) (*Token, error) {
-	return tI.create(t)
+func (impl *TokenLedgerImpl) update(token *Token) (*Token, error) {
+	return impl.create(token)
 }
 
-func (tI *TokenImpl) get(t *Token) (*Token, error) {
-	r, e := tI.ledgerDB.get(keyGen(t), &Token{})
+func (impl *TokenLedgerImpl) get(token *Token) (*Token, error) {
+	res, e := impl.ledgerStub.get(keyGen(token), &Token{})
 	if e != nil {
 		return nil, e
 	}
-	return r.(*Token), nil
+	return res.(*Token), nil
 }
